@@ -1,6 +1,11 @@
+from include.ai.genetic_algorithm import GeneticAlgorithm
+from include.ai.neural_network import NeuralNetwork
 from include.game.game import Game
 from include.game.handle_input import InputHandler
 from include.game.renderer import Renderer
+
+FPS = 60
+
 
 def play_game():
     frames = 0
@@ -15,18 +20,37 @@ def play_game():
             current_move = input_handler.get_move()
             game.step(current_move)
             renderer.render(game_state)
-        if frames >= 60:
+        if frames >= FPS:
             frames = 0
+
+
 
 
 def train_play(iterations):
 
+    game = Game(game_width, game_height)
+
+    gen_algorithm = GeneticAlgorithm()
+    neural_network = gen_algorithm.train(iterations)
+    
+    renderer = Renderer(game_width, game_height, window_width, window_height)
+
+
+    while True:
+        game_state = game.game_state
+        current_move = neural_network.next_step(game_state)
+        game.step(current_move)
+        renderer.render(game_state)    
+        pass
 
     pass
 
+
+
+
 if __name__ == "__main__":
 
-    play = True
+    play = False
     gen_count = 250
 
     game_width = 70
@@ -35,7 +59,10 @@ if __name__ == "__main__":
     window_width = game_width * 10
     window_height = game_height * 10
 
+    iterations = 500
+
+
     if play:
         play_game()
     else:
-        train_play()
+        train_play(iterations)

@@ -20,15 +20,22 @@ class Game:
         self.game_width = game_width
         self.game_height = game_height
         self.snack = self._snack_spawn()
-        self.game_state = GameState(self.snake, self.snack, self.score)
+        self.game_state = GameState(self)
         pass
 
 
     def _snack_spawn(self):
-        ran_x = random.randint(0, self.game_width -1)
-        ran_y = random.randint(0, self.game_height -1)
-        return (ran_x, ran_y)
-    
+        while True:
+            unique = True
+            ran_x = random.randint(0, self.game_width -1)
+            ran_y = random.randint(0, self.game_height -1)
+            for x,y in self.snake:
+                if ran_x == x and ran_y == y:
+                    unique = False
+                    break
+            if unique:
+                return (ran_x, ran_y)
+
     def _handle_direction(self, move):
         if move == UP:
             if self.direction[1] == 0:
@@ -94,60 +101,9 @@ class Game:
         self.direction = (1, 0)
         pass
 
-    def _init_snack(self):
-
-        '''
-            the only comment necessary, but, the snake spawns in a centre box
-            and the food spawns outside of it. the lhs, top, rhs or bottom. 
-            a random number between 0-3 will determine the area to spawn in.
-        '''
-
-        bound_selection = random.randint(0, 3)
-
-        bound_x_max = bound_x_min = bound_y_max = bound_y_min = 0
-
-        if bound_selection == LHS:
-            bound_x_min = 0
-            bound_x_max = int(self.game_width / 4) -1      
-
-            bound_y_min = 0
-            bound_y_max = self.game_height
-            pass
-        if bound_selection == TOP:
-            bound_x_min = 0
-            bound_x_max = self.game_width
-
-            bound_y_min = 0
-            bound_y_max = int( self.game_height / 4) - 1
-
-            pass
-
-        if bound_selection == RHS:
-            bound_x_min = 3 * int(self.game_width / 4)
-            bound_x_max = self.game_width
-
-            bound_y_min = 0
-            bound_y_max = self.game_height
-            pass
-
-        if bound_selection == BOTTOM:
-            bound_x_min = 0
-            bound_x_max = self.game_width
-
-            bound_y_min = 3 * int(self.game_height / 4) +1
-            bound_y_max = self.game_height
-
-            pass
-
-
-        snack_x = random.randint(bound_x_min, bound_x_max)
-        snack_y = random.randint(bound_y_min, bound_y_max)
-        self.snack = (snack_x, snack_y)
-        pass
-    
     def _reset(self):
         self._init_snake()
-        self._init_snack()
+        self.snack = self._snack_spawn()
         pass
 
     
@@ -168,8 +124,6 @@ class Game:
             else:
                 reward = 0
                 self.snake.pop()
-
-        self.game_state = GameState(self.snake, self.snack, self.score)
 
         return self.game_state, reward, self.game_over, self.score
     
