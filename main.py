@@ -27,7 +27,7 @@ def play_game():
 
 
 def train_play(iterations):
-
+    print("Training...")
     game = Game(game_width, game_height)
 
     gen_algorithm = GeneticAlgorithm()
@@ -38,7 +38,7 @@ def train_play(iterations):
 
     while True:
         game_state = game.game_state
-        current_move = neural_network.next_step(game_state)
+        current_move = 1
         game.step(current_move)
         renderer.render(game_state)    
         pass
