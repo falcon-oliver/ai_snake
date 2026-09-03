@@ -5,8 +5,6 @@ from include.game.handle_input import InputHandler
 from include.game.renderer import Renderer
 
 FPS = 60
-
-
 def play_game():
     frames = 0
     renderer = Renderer(game_width, game_height, window_width, window_height)
@@ -23,34 +21,24 @@ def play_game():
         if frames >= FPS:
             frames = 0
 
-
-
-
 def train_play(iterations):
     print("Training...")
     game = Game(game_width, game_height)
 
-    gen_algorithm = GeneticAlgorithm()
+    gen_algorithm = GeneticAlgorithm(game_width, game_height, start_population_count=1000)
     neural_network = gen_algorithm.train(iterations)
-    
     renderer = Renderer(game_width, game_height, window_width, window_height)
-
 
     while True:
         game_state = game.game_state
         current_move = 1
         game.step(current_move)
         renderer.render(game_state)    
-        pass
-
-    pass
-
-
 
 
 if __name__ == "__main__":
 
-    play = False
+    play = True
     gen_count = 250
 
     game_width = 70

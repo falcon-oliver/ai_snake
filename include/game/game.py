@@ -5,10 +5,8 @@ from include.game import renderer
 from include.game.controls import DOWN, LEFT, RIGHT, UP
 from include.game.game_state import GameState
 
-LHS = 0
-TOP = 1
-RHS = 2
-BOTTOM = 3
+
+
 class Game:
 
     def __init__(self, game_width, game_height):
@@ -34,21 +32,29 @@ class Game:
                     break
             if unique:
                 return (ran_x, ran_y)
+    
+    def _handle_direction_relative(self, move):
+        dx, dy = self.direction
+        if move == RIGHT:
+            self.direction = (dy, -dx)
+        if move == LEFT:
+            self.direction = (-dy, dx)
 
     def _handle_direction(self, move):
-        if move == UP:
-            if self.direction[1] == 0:
-                self.direction = (0, -1)
-        if move == DOWN:
-            if self.direction[1] == 0:
-                self.direction = (0, 1)
-        if move == LEFT:
-            if self.direction[0] == 0:
-                self.direction = (-1, 0)
-        if move == RIGHT:
-            if self.direction[0] == 0:
-                self.direction = (1, 0)
-        return self.direction
+        dx, dy = self.direction
+        relative_direction = self.direction
+        if dy == 0:
+            if move == DOWN:
+                relative_direction = LEFT if dx == 1 else RIGHT
+            if move == UP:
+                relative_direction = LEFT if dx == -1 else RIGHT
+        elif dx == 0:
+            if move == LEFT:
+                relative_direction = LEFT if dy == 1 else RIGHT
+            if move == RIGHT:
+                relative_direction = LEFT if dy == -1 else RIGHT
+        self._handle_direction_relative(relative_direction)
+
 
     def _detect_wall_collision(self):
         snake_head = self.snake[0]
@@ -82,7 +88,6 @@ class Game:
         new_snake_head = (snake_head[0] + self.direction[0], snake_head[1] + self.direction[1])
         self.snake.appendleft(new_snake_head)
 
-
     def _init_snake(self):
         bound_x_min = int(self.game_width / 4)
         bound_x_max = int(3 * bound_x_min)
@@ -100,10 +105,8 @@ class Game:
         self._init_snake()
         self.snack = self._snack_spawn()
 
-    
     def step(self, move):
         reward = 0
-
         self._handle_direction(move)
         self._move_snake()
         self.game_over = self._has_collided()

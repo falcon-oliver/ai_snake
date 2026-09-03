@@ -1,48 +1,84 @@
-from math import hypot
+from torch import tensor, float32, inf
+from numpy import dot
 
 
 class GameState:
     def __init__(self, game):
         self.game = game
-        pass
+        self.game_width = game.game_width
+        self.game_height = game.game_height
+        self.direction = self.game.direction
+        self.snake = self.game.snake
+        self.snack = self.game.snack
 
-    @property
-    def snake(self):
-        return self.game.snake
-    @property
-    def snack(self):
-        return self.game.snack
+    def _rotate_right(self, direction):
+        dx, dy = direction
+        right = (-dy, dx)
+        return right
 
-    @property
-    def snack_distance(self):
-        head_x, head_y = self.game.snake[0]
-        snack_x, snack_y = self.game.snack
-        return hypot(snack_x - head_x, snack_y - head_y)
+    def _rotate_left(self, direction):
+        dx, dy = direction
+        left = (dy, -dx)
+        return left
 
-    @property
-    def wall_left_distance(self):
-        head_x, _ = self.game.snake[0]
-        return head_x
+    def _danger_distance(self, direction):
+        dx, dy = direction
+        x, y = self.snake[0]
+        distance = 0
 
-    @property
-    def wall_right_distance(self):
-        head_x, _ = self.game.snake[0]
-        return self.game.game_width - head_x
+        while True:
+            x += dx
+            y += dy
+            distance += 1
+            if x < 0 or x >= self.game_width or y < 0 or y >= self.game_height:
+                return distance
+            
+            if (x, y) in self.snake:
+                return distance
     
-    @property 
-    def wall_top_distance(self):
-        _, head_y = self.game.snake[0]
-        return head_y
+    def _snack_distance(self, direction):
+        snake_x, snake_y = self.snake[0]
+        snack_x, snack_y = self.snack
+        snack_distance = (snack_x - snake_x, snack_y - snake_y)
+        distance = dot( snack_distance, direction )
+        return distance
+    
+    @property
+    def danger_forward_distance(self):
+        return self._danger_distance(self.direction)
 
     @property
-    def wall_bottom_distance(self):
-        _, head_y = self.game.snake[0]
-        return self.game.game_height - head_y
+    def danger_left_distance(self):
+        return self._danger_distance(self._rotate_left(self.direction))
+
+    @property
+    def danger_right_distance(self):
+        return self._danger_distance(self._rotate_right(self.direction))
+    
+    @property
+    def snack_forward_distance(self):
+        return self._snack_distance(self.direction)
+
+    @property
+    def snack_left_distance(self):
+        return self._snack_distance(self._rotate_left(self.direction))
+
+    @property
+    def snack_right_distance(self):
+        return self._snack_distance(self._rotate_right(self.direction))
+
+    @property
+    def snack_behind_distance(self):
+        dx, dy = self.direction
+        behind = (-dx, -dy)
+        return self._snack_distance(behind)
 
     @property
     def game_state(self):
-        return self.snack_distance, self.wall_left_distance, self.wall_right_distance, self.wall_top_distance, self.wall_top_distance
-
+        self.direction = self.game.direction
+        self.snake = self.game.snake
+        self.snack = self.game.snack
+        return tensor([self.danger_forward_distance, self.danger_left_distance, self.danger_right_distance, self.snack_forward_distance, self.snack_left_distance, self.snack_right_distance, self.snack_behind_distance], dtype=float32)
 
     @property
     def fitness_score(self):

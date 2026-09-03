@@ -40,12 +40,30 @@ class Renderer:
         snack = game_state.snack
         x, y = snack
         pygame.draw.rect(self.screen, SNACK, (x*self.cell_width, y*self.cell_height, self.cell_width, self.cell_height))
-
         pass
-    
+
+    def _print_inline(self, text):
+        print(f"\r{text}", end="", flush=True)
+
+    def _print_state(self, game_state):
+        tensor = game_state.game_state
+        (danger_forward_distance, danger_left_distance, danger_right_distance, snack_forward_distance, snack_left_distance, snack_right_distance, snack_behind_distance) = tensor
+        danger_forward = f"d fwd: {danger_forward_distance}"
+        danger_left = f"d lft: {danger_left_distance}"
+        danger_right = f"d rgt: {danger_right_distance}"
+
+        snack_forward = f"s fwd: {snack_forward_distance}"
+        snack_left = f"s left: {snack_left_distance}"
+        snack_right = f"s rgt: {snack_right_distance}"
+        snack_behind = f"s bhd: {snack_behind_distance}"
+
+        self._print_inline(f"{danger_forward} | {danger_left} | {danger_right} | {snack_forward} | {snack_left} | {snack_right} | {snack_behind}")
+
+
     def _render_game(self, game_state):
         self._draw_snake(game_state)
         self._draw_snack(game_state)
+        self._print_state(game_state)
         pass
     
     def render(self, game_state):
