@@ -10,7 +10,6 @@ def play_game():
     renderer = Renderer(game_width, game_height, window_width, window_height)
     game = Game(game_width, game_height)
     input_handler = InputHandler()
-
     while True:
         frames += 1
         if frames % 30 == 0:
@@ -22,23 +21,23 @@ def play_game():
             frames = 0
 
 def train_play(iterations):
-    print("Training...")
     game = Game(game_width, game_height)
-
     gen_algorithm = GeneticAlgorithm(game_width, game_height, start_population_count=1000)
-    neural_network = gen_algorithm.train(iterations)
+    gen_algorithm.train(iterations)
+    neural_network = gen_algorithm.optimal_network
+
     renderer = Renderer(game_width, game_height, window_width, window_height)
 
     while True:
         game_state = game.game_state
-        current_move = 1
-        game.step(current_move)
-        renderer.render(game_state)    
+        current_move = neural_network.get_move(game_state)
+        game.step_ai(current_move)
+        renderer.render(game_state)
 
 
 if __name__ == "__main__":
 
-    play = True
+    play = False
     gen_count = 250
 
     game_width = 70

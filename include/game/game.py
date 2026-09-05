@@ -8,7 +8,6 @@ from include.game.game_state import GameState
 
 
 class Game:
-
     def __init__(self, game_width, game_height):
         self.snake = deque([(10, 10), (9, 10), (8, 10)])
         self.direction = (1, 0)
@@ -19,7 +18,6 @@ class Game:
         self.game_height = game_height
         self.snack = self._snack_spawn()
         self.game_state = GameState(self)
-
 
     def _snack_spawn(self):
         while True:
@@ -123,4 +121,23 @@ class Game:
                 self.snake.pop()
 
         return self.game_state, reward, self.game_over, self.score
-    
+
+    def step_ai(self, move):
+        reward = 0
+        self._handle_direction_relative(move)
+        self._move_snake()
+        self.game_over = self._has_collided()
+
+        if self.game_over:
+            self._reset()
+            reward = -1
+        else:
+            if self._ate_snack():
+                self.snack = self._snack_spawn()
+                self.game_state.snacks_ate += 1
+                reward = 1
+            else:
+                reward = 0
+                self.snake.pop()
+        self.game_state.time_survived += 1
+        return self.game_state, reward, self.game_over, self.score

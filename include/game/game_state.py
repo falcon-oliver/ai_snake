@@ -1,7 +1,8 @@
 from torch import tensor, float32, inf
 from numpy import dot
 
-
+SNACK_WEIGHT = 10
+TIME_SURVIVED_WEIGHT = 0.00
 class GameState:
     def __init__(self, game):
         self.game = game
@@ -10,6 +11,8 @@ class GameState:
         self.direction = self.game.direction
         self.snake = self.game.snake
         self.snack = self.game.snack
+        self.snacks_ate = 0
+        self.time_survived = 0
 
     def _rotate_right(self, direction):
         dx, dy = direction
@@ -82,5 +85,6 @@ class GameState:
 
     @property
     def fitness_score(self):
-        fitness_score = 0
+        fitness_score = self.snacks_ate * SNACK_WEIGHT + self.time_survived * TIME_SURVIVED_WEIGHT
         return fitness_score
+        
