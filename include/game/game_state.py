@@ -2,7 +2,7 @@ from torch import tensor, float32, inf
 from numpy import dot
 
 SNACK_WEIGHT = 10
-TIME_SURVIVED_WEIGHT = 0.00
+TIME_SURVIVED_WEIGHT = 0.1
 class GameState:
     def __init__(self, game):
         self.game = game
@@ -34,16 +34,17 @@ class GameState:
             y += dy
             distance += 1
             if x < 0 or x >= self.game_width or y < 0 or y >= self.game_height:
-                return distance
+                return distance / max(self.game_width, self.game_height)
             
             if (x, y) in self.snake:
-                return distance
+                return distance / max(self.game_width, self.game_height)
     
     def _snack_distance(self, direction):
         snake_x, snake_y = self.snake[0]
         snack_x, snack_y = self.snack
         snack_distance = (snack_x - snake_x, snack_y - snake_y)
         distance = dot( snack_distance, direction )
+        distance /= (self.game_width + self.game_height)
         return distance
     
     @property

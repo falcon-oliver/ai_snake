@@ -34,9 +34,9 @@ class Game:
     def _handle_direction_relative(self, move):
         dx, dy = self.direction
         if move == RIGHT:
-            self.direction = (dy, -dx)
-        if move == LEFT:
             self.direction = (-dy, dx)
+        if move == LEFT:
+            self.direction = (dy, -dx)
 
     def _handle_direction(self, move):
         dx, dy = self.direction
@@ -102,6 +102,9 @@ class Game:
     def _reset(self):
         self._init_snake()
         self.snack = self._snack_spawn()
+        self.game_over = False
+        self.game_state.snacks_ate = 0
+        self.game_state.time_survived = 0
 
     def step(self, move):
         reward = 0
@@ -123,21 +126,16 @@ class Game:
         return self.game_state, reward, self.game_over, self.score
 
     def step_ai(self, move):
-        reward = 0
         self._handle_direction_relative(move)
         self._move_snake()
         self.game_over = self._has_collided()
-
         if self.game_over:
-            self._reset()
             reward = -1
         else:
             if self._ate_snack():
                 self.snack = self._snack_spawn()
                 self.game_state.snacks_ate += 1
-                reward = 1
             else:
-                reward = 0
                 self.snake.pop()
         self.game_state.time_survived += 1
-        return self.game_state, reward, self.game_over, self.score
+        

@@ -40,13 +40,13 @@ if __name__ == "__main__":
     play = False
     gen_count = 250
 
-    game_width = 70
-    game_height = 70
+    game_width = 15
+    game_height = 15
 
     window_width = game_width * 10
     window_height = game_height * 10
 
-    iterations = 500
+    iterations = 100
 
 
     if play:
