@@ -1,9 +1,9 @@
 import pygame
 
 FPS = 60
-BACKGROUND = (255, 255, 255)
-GRID_LINE = (150, 150, 150)
-SNAKE = (0, 0, 0)
+BACKGROUND = (0, 0, 0)
+GRID_LINE = (0, 0, 0)
+SNAKE = (0, 255, 0)
 SNACK = (150, 0, 0)
 class Renderer:
     def __init__(self, game_width, game_height, window_width, window_height):
@@ -39,17 +39,15 @@ class Renderer:
 
     def _print_state(self, game_state):
         tensor = game_state.game_state
-        (danger_forward_distance, danger_left_distance, danger_right_distance, snack_forward_distance, snack_left_distance, snack_right_distance, snack_behind_distance) = tensor
+        '''
+        (danger_forward_distance, danger_left_distance, danger_right_distance, snack_forward_distance, snack_left_distance) = tensor
         danger_forward = f"d fwd: {danger_forward_distance}"
         danger_left = f"d lft: {danger_left_distance}"
         danger_right = f"d rgt: {danger_right_distance}"
-
         snack_forward = f"s fwd: {snack_forward_distance}"
         snack_left = f"s left: {snack_left_distance}"
-        snack_right = f"s rgt: {snack_right_distance}"
-        snack_behind = f"s bhd: {snack_behind_distance}"
 
-        '''self.print_inline(f"{danger_forward} | {danger_left} | {danger_right} | {snack_forward} | {snack_left} | {snack_right} | {snack_behind}")
+        self.print_inline(f"{danger_forward} | {danger_left} | {danger_right} | {snack_forward} | {snack_left} |")
         '''
 
     def _render_game(self, game_state):
