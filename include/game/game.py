@@ -5,8 +5,6 @@ from include.game import renderer
 from include.game.controls import DOWN, LEFT, RIGHT, UP
 from include.game.game_state import GameState
 
-
-
 class Game:
     def __init__(self, game_width, game_height):
         self.snake = deque([(10, 10), (9, 10), (8, 10)])
@@ -18,7 +16,7 @@ class Game:
         self.game_height = game_height
         self.snack = self._snack_spawn()
         self.game_state = GameState(self)
-
+        self.moves_since_snack = 0
     def _snack_spawn(self):
         while True:
             unique = True
@@ -103,11 +101,10 @@ class Game:
         self._init_snake()
         self.snack = self._snack_spawn()
         self.game_over = False
-        self.game_state.snacks_ate = 0
-        self.game_state.time_survived = 0
+        self.game_state = GameState(self)
+
 
     def step(self, move):
-        reward = 0
         self._handle_direction(move)
         self._move_snake()
         self.game_over = self._has_collided()
@@ -123,19 +120,52 @@ class Game:
                 reward = 0
                 self.snake.pop()
 
-        return self.game_state, reward, self.game_over, self.score
 
-    def step_ai(self, move):
+    def test_ai_step(self, move):
+        start_distance = self.game_state.snack_distance
+
         self._handle_direction_relative(move)
         self._move_snake()
         self.game_over = self._has_collided()
         if self.game_over:
-            reward = -1
+            self.game_state.self_collision = self._detect_self_collision()
+            self._reset()
         else:
             if self._ate_snack():
                 self.snack = self._snack_spawn()
                 self.game_state.snacks_ate += 1
             else:
                 self.snake.pop()
+                distance = self.game_state.snack_distance
+                if distance < start_distance:
+                    self.game_state.shaping_reward += (start_distance - distance)
+                else:
+                    self.game_state.shaping_reward -= (distance - start_distance)
+        self.game_state.time_survived += 1
+        
+
+    def step_ai(self, move):
+        start_distance = self.game_state.snack_distance
+        self._handle_direction_relative(move)
+        self._move_snake()
+        self.game_over = self._has_collided()
+        if self.game_over:
+            self.game_state.self_collision = self._detect_self_collision()
+        else:
+            if self._ate_snack():
+                self.snack = self._snack_spawn()
+                self.game_state.snacks_ate += 1
+                self.moves_since_snack  = 0
+            else:
+                self.moves_since_snack  += 1
+                self.snake.pop()
+                distance = self.game_state.snack_distance
+                if distance < start_distance:
+                    self.game_state.shaping_reward += abs(start_distance - distance)
+                else:
+                    self.game_state.shaping_reward -= abs(distance - start_distance)
+            if self.moves_since_snack  >= 20:
+                self.game_state.inactivity += 1
+
         self.game_state.time_survived += 1
         

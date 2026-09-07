@@ -1,4 +1,3 @@
-
 NO_MOVE = 0
 LEFT = 1
 RIGHT = 2

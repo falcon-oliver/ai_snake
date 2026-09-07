@@ -16,7 +16,6 @@ class Renderer:
         self.cell_width =  int(window_width / game_width)
         self.cell_height = int(window_height / game_height)
         self.render_clock = pygame.time.Clock()
-        pass
 
     def _render_background(self):
         self.screen.fill(BACKGROUND)
@@ -35,7 +34,7 @@ class Renderer:
         x, y = snack
         pygame.draw.rect(self.screen, SNACK, (x*self.cell_width, y*self.cell_height, self.cell_width, self.cell_height))
 
-    def _print_inline(self, text):
+    def print_inline(self, text):
         print(f"\r{text}", end="", flush=True)
 
     def _print_state(self, game_state):
@@ -50,8 +49,8 @@ class Renderer:
         snack_right = f"s rgt: {snack_right_distance}"
         snack_behind = f"s bhd: {snack_behind_distance}"
 
-        self._print_inline(f"{danger_forward} | {danger_left} | {danger_right} | {snack_forward} | {snack_left} | {snack_right} | {snack_behind}")
-
+        '''self.print_inline(f"{danger_forward} | {danger_left} | {danger_right} | {snack_forward} | {snack_left} | {snack_right} | {snack_behind}")
+        '''
 
     def _render_game(self, game_state):
         self._draw_snake(game_state)

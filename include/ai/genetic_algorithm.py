@@ -6,19 +6,20 @@ from include.ai.neural_network import NeuralNetwork
 from include.game.game import Game
 import torch
 
-CANDIDATE_SET = 20
-ELITE_SET = 10
+CANDIDATE_SET = 0.3
+ELITE_SET = 0.1
 MUTATION_RATE = 0.1
-MUTATION_STRENGTH = 0.05
-CROSSOVER_RATE = 0.5
+MUTATION_STRENGTH = 0.15
+CROSSOVER_RATE = 0.2
 WEIGHT_FLOOR = -1
 WEIGHT_CEIL = 1
+GAMES_PLAYED = 3
 class GeneticAlgorithm:
 
     def __init__(self, game_width, game_height, start_population_count=1000):
         self.start_population_count = start_population_count
-        self.candidate_len = int(start_population_count / CANDIDATE_SET)
-        self.elite_len = int(self.candidate_len / ELITE_SET)
+        self.candidate_len = max(2, int(start_population_count * CANDIDATE_SET))
+        self.elite_len = max(1, int(start_population_count * ELITE_SET))
         self.game_width = game_width
         self.game_height = game_height
         self.optimal_network = None
@@ -28,14 +29,17 @@ class GeneticAlgorithm:
         for i in range(population_count):
             game = Game(self.game_width, self.game_height)
             neural_network = NeuralNetwork(game)
-            neural_network.generate_random_weights()
             population.append(neural_network)
         return population
 
     def _evaluate(self, neural_network):
-        neural_network.play_game()
-        fitness = neural_network.fitness
-        return fitness
+        scores = 0
+        for i in range(GAMES_PLAYED):
+            neural_network.play_game()
+            fitness = neural_network.fitness
+            scores += fitness
+        scores /= GAMES_PLAYED
+        return scores
 
     def _get_candidate_set(self, fitness_scores, population):
         return self._get_top_k(fitness_scores, population, self.candidate_len)
@@ -58,16 +62,14 @@ class GeneticAlgorithm:
     def train(self, iterations=1000):
         population = self._generate_random_population(self.start_population_count)
         for i in range(iterations):
-            print(f'{i} / {iterations}')
             fitness_scores = self._evaluate_population(population)
             candidates = self._get_candidate_set(fitness_scores, population)
             elites = self._get_elite_set(fitness_scores, population)
             candidates = [candidate for candidate in candidates if candidate not in elites]
             old_population = population
             population = self._generate_new_population(candidates, elites)
-
             fittest_candidate_index = fitness_scores.index(max(fitness_scores))
-            print(f'fittest {old_population[fittest_candidate_index].fitness}')
+            print(f'MAX_FITNESS={fitness_scores[fittest_candidate_index]:.2f}\t\tEPOCH={i}/{iterations}')
 
         fitness_scores = self._evaluate_population(population)
         fittest_candidate_index = fitness_scores.index(max(fitness_scores))
@@ -79,10 +81,8 @@ class GeneticAlgorithm:
     def _generate_new_population(self, candidates, elites):
         new_generation = []
 
-
         new_candidates = self._crossover(candidates)
         mutated_candidates = self._mutate_candidates(new_candidates)
-
 
         new_generation.extend(mutated_candidates)
         new_generation.extend(elites)
@@ -119,7 +119,5 @@ class GeneticAlgorithm:
             mutated_weights = torch.where(mask, parent_a.get_weights(), parent_b.get_weights())
             new_candidate = NeuralNetwork(Game(self.game_width, self.game_height))
             new_candidate.load_weights(mutated_weights)
-            crossovers.append(new_candidate)
-        
+            crossovers.append(new_candidate)        
         return crossovers
-

@@ -1,8 +1,12 @@
 from torch import tensor, float32, inf
 from numpy import dot
 
-SNACK_WEIGHT = 10
-TIME_SURVIVED_WEIGHT = 0.1
+SNACK_WEIGHT = 150
+TIME_SURVIVED_WEIGHT = -0.1
+STAGNATION_WEIGHT = -0.1
+SHAPING_REWARD_WEIGHT = 0.1
+PENALTY = 75
+
 class GameState:
     def __init__(self, game):
         self.game = game
@@ -13,6 +17,9 @@ class GameState:
         self.snack = self.game.snack
         self.snacks_ate = 0
         self.time_survived = 0
+        self.shaping_reward = 0
+        self.inactivity = 0
+        self.self_collision = False
 
     def _rotate_right(self, direction):
         dx, dy = direction
@@ -72,6 +79,13 @@ class GameState:
         return self._snack_distance(self._rotate_right(self.direction))
 
     @property
+    def snack_distance(self):
+        snake_x, snake_y = self.snake[0]
+        snack_x, snack_y = self.snack
+        return abs(snake_x - snack_x) + abs(snake_y - snack_y)
+
+
+    @property
     def snack_behind_distance(self):
         dx, dy = self.direction
         behind = (-dx, -dy)
@@ -86,6 +100,12 @@ class GameState:
 
     @property
     def fitness_score(self):
-        fitness_score = self.snacks_ate * SNACK_WEIGHT + self.time_survived * TIME_SURVIVED_WEIGHT
+        penalty = PENALTY if self.self_collision else PENALTY / 2
+        fitness_score = ( 
+            self.snacks_ate ** 2 * SNACK_WEIGHT 
+            + self.time_survived * TIME_SURVIVED_WEIGHT
+            + self.shaping_reward * SHAPING_REWARD_WEIGHT
+            - self.inactivity * STAGNATION_WEIGHT
+            - penalty
+            )
         return fitness_score
-        
