@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 from os import environ
+
+from include.game.game_observer import GameObserver
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 from warnings import filterwarnings
 filterwarnings('ignore')
@@ -27,7 +29,6 @@ class Main:
             prog='Neuroevolution snake game',
             description='Utilising genetic algorithms and neural networks to play an AI-based solution to snake.'
         )
-
         parser.add_argument('-v', '--verbose', action='store_true')
         parser.add_argument('-f', '--file', action='store_true')
         return parser.parse_args()
@@ -38,34 +39,20 @@ class Main:
         neural_network = gen_algorithm.optimal_network
         return neural_network
 
-    def _choose_ai(self, game_state, neural_network):
-        current_move = neural_network.get_move(game_state)
-        self.game.test_ai_step(current_move)
-
-    def _choose(self):
-        pass
-
-    def _play_test(self):
-        pass
-
     def _play_ai(self):
         neural_network = self._train()
         renderer = Renderer(self.game_width, self.game_height, self.window_width, self.window_height)
-        frames = 0
+        observer = GameObserver(self.game)
         while True:
-            if frames % 30 == 0:
-                game_state = self.game.game_state
-                current_move = neural_network.get_move(game_state)
-                self.game.test_ai_step(current_move)
-                renderer.render(game_state)
-            if frames >= FPS:
-                frames = 1
+            current_move = neural_network.get_move(observer)
+            self.game.step(current_move)
+            renderer.render(observer)
+            if self.game.game_over:
+                self.game._reset()
     
     def play(self):
         if self.ai:
             self._play_ai()
-        else:
-            self._play_test()
 
 if __name__ == "__main__":
     main = Main()

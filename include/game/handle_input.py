@@ -4,7 +4,6 @@ from include.game.controls import NO_MOVE, UP, DOWN, LEFT, RIGHT
 class InputHandler:
     def __init__(self):
         self.current_move = NO_MOVE
-
     def get_move(self):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -16,5 +15,4 @@ class InputHandler:
                     return LEFT
                 if event.key == pygame.K_RIGHT:
                     return RIGHT
-
         return NO_MOVE

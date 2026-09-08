@@ -1,12 +1,9 @@
-from collections import deque
 import random
-
-from include.game import renderer
+from collections import deque
 from include.game.controls import DOWN, LEFT, RIGHT, UP
-from include.ai.game_state import GameState
 
-TIMEOUT_LIMIT = 100
-INACTIVITY_THRESHOLD = 40
+TIMEOUT_LIMIT = 250
+
 class Game:
     def __init__(self, game_width, game_height):
         self.snake = deque([(10, 10), (9, 10), (8, 10)])
@@ -17,8 +14,7 @@ class Game:
         self.game_width = game_width
         self.game_height = game_height
         self.snack = self._snack_spawn()
-        self.game_state = GameState(self)
-        self.moves_since_snack = 0
+        self.timeout_counter = 0
     
     def _snack_spawn(self):
         while True:
@@ -53,7 +49,6 @@ class Game:
             if move == RIGHT:
                 relative_direction = LEFT if dy == -1 else RIGHT
         self._handle_direction_relative(relative_direction)
-
 
     def _detect_wall_collision(self):
         snake_head = self.snake[0]
@@ -90,13 +85,10 @@ class Game:
     def _init_snake(self):
         bound_x_min = int(self.game_width / 4)
         bound_x_max = int(3 * bound_x_min)
-
         bound_y_min = int( self.game_height / 4)
         bound_y_max = int(3 * bound_y_min)
-
         snake_x = random.randint(bound_x_min, bound_x_max)
         snake_y = random.randint(bound_y_min, bound_y_max)
-
         self.snake = deque([(snake_x, snake_y), (snake_x-1, snake_y), (snake_x-2, snake_y)])
         self.direction = (1, 0)
 
@@ -104,70 +96,22 @@ class Game:
         self._init_snake()
         self.snack = self._snack_spawn()
         self.game_over = False
-        self.game_state = GameState(self)
-        self.moves_since_snack  = 0
-
+        self.timeout_counter  = 0
 
     def step(self, move):
-        self._handle_direction(move)
-        self._move_snake()
-        self.game_over = self._has_collided()
-
-        if self.game_over:
-            self._reset()
-            reward = -1
-        else:
-            if self._ate_snack():
-                self.snack = self._snack_spawn()
-                reward = 1
-            else:
-                reward = 0
-                self.snake.pop()
-
-
-    def test_ai_step(self, move):
-        start_distance = self.game_state.snack_distance
-
         self._handle_direction_relative(move)
         self._move_snake()
-        self.game_over = self._has_collided()
-        if self.game_over:
-            self._reset()
-        else:
-            if self._ate_snack():
+        timeout = self.timeout_counter >= TIMEOUT_LIMIT
+        collision = self._has_collided()
+        snack_ate = False
+        self.game_over = timeout or collision
+
+        if not self.game_over:
+            if snack_ate := self._ate_snack():
                 self.snack = self._snack_spawn()
-                self.game_state.snacks_ate += 1
+                self.timeout_counter = 0
             else:
+                self.timeout_counter += 1
                 self.snake.pop()
-                distance = self.game_state.snack_distance
-                if distance < start_distance:
-                    self.game_state.shaping_reward += (start_distance - distance)
-                else:
-                    self.game_state.shaping_reward -= (distance - start_distance)
-        self.game_state.time_survived += 1
-
-    def step_ai(self, move):
-        start_distance = self.game_state.snack_distance
-        self._handle_direction_relative(move)
-        self._move_snake()
-        self.game_over = self._has_collided() or self.moves_since_snack >= TIMEOUT_LIMIT 
-
-        if self.game_over:
-            self.game_state.collision = self._has_collided()
-        else:
-            if self._ate_snack():
-                self.snack = self._snack_spawn()
-                self.game_state.snacks_ate += 1
-                self.moves_since_snack  = 0
-            else:
-                self.moves_since_snack  += 1
-                self.snake.pop()
-                distance = self.game_state.snack_distance
-                if distance < start_distance:
-                    self.game_state.shaping_reward += abs(start_distance - distance)
-                else:
-                    self.game_state.shaping_reward -= abs(distance - start_distance)
-            if self.moves_since_snack  >= INACTIVITY_THRESHOLD:
-                self.game_state.inactivity += 1
-
-        self.game_state.time_survived += 1
+    
+        return snack_ate, timeout, collision

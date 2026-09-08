@@ -1,0 +1,28 @@
+genetic_algorithm:
+  candidate_set_size: 0.5
+  elite_set_size: 0.1
+  crossover_rate: 0.5
+  mutation_rate: 0.1
+  mutation_strength: 0.15
+  snake_games: 7
+  network_weights:
+    weight_ceil: 1
+    weight_floor: -1
+    bias_ceil: 0.5
+    bias_floor: -0.5
+    bias_strength: 0.1
+
+neural_network:
+  hidden_layer: 7
+
+fitness:
+  snack_weight: 100
+  survival_weight: 0.1
+  idle_weight: 0
+  shaping_reward_weight: 1
+  collision_penalty: 400
+  timeout_penalty: 400
+  inactivity_threshold: 40
+
+game:
+  timeout_limit: 100

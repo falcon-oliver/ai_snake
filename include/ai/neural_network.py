@@ -1,22 +1,19 @@
-
-import os
 from include.game.controls import LEFT, RIGHT, NO_MOVE
 import torch
 from torch import nn, argmax
+from config.config import neural_network_config
+from include.game.game_observer import GameObserver
 
 INPUT_LAYER = 6
-HIDDEN_LAYER = 10
+HIDDEN_LAYER = neural_network_config.hidden_layer
 OUTPUT_LAYER = 3
 MOVES = [NO_MOVE, LEFT, RIGHT]
-WEIGHT_FLOOR = -0.5
-WEIGHT_CEIL = 0.5
+
 class NeuralNetwork(nn.Module):
     def __init__(self, game):
         super().__init__()
         self.game = game
-        self.game_state = self.game.game_state
-        self.input_layer = nn.Linear(INPUT_LAYER, HIDDEN_LAYER)
-        self.output_layer = nn.Linear(HIDDEN_LAYER, OUTPUT_LAYER)
+        self.game_observer = GameObserver(self.game)
         self.network = nn.Sequential(
             nn.Linear(INPUT_LAYER, HIDDEN_LAYER),
             nn.ReLU(),
@@ -26,25 +23,22 @@ class NeuralNetwork(nn.Module):
     @torch.no_grad()
     def play_game(self):
         self.game._reset()
-        self.game_state = self.game.game_state
-        self.game.game_state.snacks_ate = 0
-        self.game.game_state.time_survived = 0
-
+        self.game_observer = GameObserver(self.game)
         while not self.game.game_over:
-            state = self.game.game_state.game_state
+            state = self.game_observer.state
             output = self(state)
             move = self._select_move(output)
-            self.game.step_ai(move)
+            update = self.game.step(move)
+            self.game_observer.update_state(update)
     
-    def get_move(self, game_state):
-        output = self(game_state.game_state)
+    def get_move(self, game_observer):
+        output = self(game_observer.state)
         move = self._select_move(output)
         return move
-        
+
     @property
     def fitness(self):
-        self.game_state = self.game.game_state
-        return self.game_state.fitness_score
+        return self.game_observer.fitness_score
 
     @torch.no_grad()
     def _load_param(self, values, param_name):
