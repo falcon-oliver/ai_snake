@@ -8,7 +8,7 @@ class Renderer:
     def __init__(self, game_width, game_height, window_width, window_height):
         pygame.init()
         self.screen = pygame.display.set_mode((window_width, window_height))
-        pygame.display.set_caption("snake gen algorithm")
+        pygame.display.set_caption("ai_snake")
         self.game_width = game_width
         self.game_height = game_height
         self.window_width = window_width

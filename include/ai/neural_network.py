@@ -36,6 +36,9 @@ class NeuralNetwork(nn.Module):
         move = self._select_move(output)
         return move
 
+    def load_network(self, state_dict):
+        self.load_state_dict(state_dict)
+
     @property
     def fitness(self):
         return self.game_observer.fitness_score

@@ -50,6 +50,11 @@ class GameObserver:
         if not collision and not timeout:
             self.time_survived += 1
 
+    def refresh_state(self):
+        self.direction = self.game.direction
+        self.snake = self.game.snake
+        self.snack = self.game.snack
+
     def update_state(self, step_data):
         snack_ate, timeout, collision = step_data
         distance = self.snack_distance
@@ -142,9 +147,7 @@ class GameObserver:
 
     @property
     def state(self):
-        self.direction = self.game.direction
-        self.snake = self.game.snake
-        self.snack = self.game.snack
+        self.refresh_state()
         return tensor([
                 self.danger_forward_distance, 
                 self.danger_left_distance, 

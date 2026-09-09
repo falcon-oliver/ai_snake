@@ -20,9 +20,10 @@ fitness:
   survival_weight: 0.1
   idle_weight: 0
   shaping_reward_weight: 1
-  collision_penalty: 400
-  timeout_penalty: 400
+  collision_penalty: 70
+  timeout_penalty: 40
   inactivity_threshold: 40
 
 game:
-  timeout_limit: 100
+  timeout_limit: 70
+  timeout_bonus: 10

@@ -1,9 +1,10 @@
 import random
 from collections import deque
 from include.game.controls import DOWN, LEFT, RIGHT, UP
+from config.config import game_config
 
-TIMEOUT_LIMIT = 250
-
+TIMEOUT_BONUS = game_config.timeout_bonus
+TIMEOUT_LIMIT = game_config.timeout_limit
 class Game:
     def __init__(self, game_width, game_height):
         self.snake = deque([(10, 10), (9, 10), (8, 10)])
@@ -15,7 +16,8 @@ class Game:
         self.game_height = game_height
         self.snack = self._snack_spawn()
         self.timeout_counter = 0
-    
+        self.timeout_limit = TIMEOUT_LIMIT
+
     def _snack_spawn(self):
         while True:
             unique = True
@@ -40,14 +42,14 @@ class Game:
         relative_direction = self.direction
         if dy == 0:
             if move == DOWN:
-                relative_direction = LEFT if dx == 1 else RIGHT
-            if move == UP:
                 relative_direction = LEFT if dx == -1 else RIGHT
+            if move == UP:
+                relative_direction = LEFT if dx == 1 else RIGHT
         elif dx == 0:
             if move == LEFT:
-                relative_direction = LEFT if dy == 1 else RIGHT
-            if move == RIGHT:
                 relative_direction = LEFT if dy == -1 else RIGHT
+            if move == RIGHT:
+                relative_direction = LEFT if dy == 1 else RIGHT
         self._handle_direction_relative(relative_direction)
 
     def _detect_wall_collision(self):
@@ -97,11 +99,15 @@ class Game:
         self.snack = self._snack_spawn()
         self.game_over = False
         self.timeout_counter  = 0
+        self.timeout_limit = TIMEOUT_LIMIT
 
-    def step(self, move):
-        self._handle_direction_relative(move)
+    def step(self, move, timeout_enabled=True, relative=True):
+        if relative:
+            self._handle_direction_relative(move)
+        else:
+            self._handle_direction(move)
         self._move_snake()
-        timeout = self.timeout_counter >= TIMEOUT_LIMIT
+        timeout = self.timeout_counter >= self.timeout_limit if timeout_enabled else False
         collision = self._has_collided()
         snack_ate = False
         self.game_over = timeout or collision
@@ -110,8 +116,8 @@ class Game:
             if snack_ate := self._ate_snack():
                 self.snack = self._snack_spawn()
                 self.timeout_counter = 0
+                self.timeout_limit += TIMEOUT_BONUS
             else:
                 self.timeout_counter += 1
                 self.snake.pop()
-    
         return snack_ate, timeout, collision
