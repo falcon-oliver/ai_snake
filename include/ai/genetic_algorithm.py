@@ -1,20 +1,22 @@
 import random
 from include.ai.neural_network import NeuralNetwork
 from include.game.game import Game
-from config.config import genetic_algorithm_config
+from config.config import genetic_algorithm_config, neural_network_config
 import torch
 
 CANDIDATE_SET = genetic_algorithm_config.candidate_set_size
 ELITE_SET = genetic_algorithm_config.elite_set_size
 MUTATION_RATE = genetic_algorithm_config.mutation_rate
-MUTATION_STRENGTH = genetic_algorithm_config.mutation_strength
+MUTATION_STRENGTH = genetic_algorithm_config.weight_mutation_strength
+BIAS_STRENGTH = genetic_algorithm_config.bias_mutation_strength
 CROSSOVER_RATE = genetic_algorithm_config.crossover_rate
 SNAKE_GAMES = genetic_algorithm_config.snake_games
-WEIGHT_FLOOR = genetic_algorithm_config.network_weights.weight_floor
-WEIGHT_CEIL = genetic_algorithm_config.network_weights.weight_ceil
-BIAS_STRENGTH = genetic_algorithm_config.network_weights.bias_strength
-BIAS_FLOOR = genetic_algorithm_config.network_weights.bias_floor
-BIAS_CEIL = genetic_algorithm_config.network_weights.bias_ceil
+
+
+WEIGHT_FLOOR = neural_network_config.weight_floor
+WEIGHT_CEIL = neural_network_config.weight_ceil
+BIAS_FLOOR = neural_network_config.bias_floor
+BIAS_CEIL = neural_network_config.bias_ceil
 
 class GeneticAlgorithm:
 

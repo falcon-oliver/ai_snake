@@ -3,17 +3,16 @@ genetic_algorithm:
   elite_set_size: 0.1
   crossover_rate: 0.5
   mutation_rate: 0.1
-  mutation_strength: 0.15
+  weight_mutation_strength: 0.15
+  bias_mutation_strength: 0.1
   snake_games: 7
-  network_weights:
-    weight_ceil: 1
-    weight_floor: -1
-    bias_ceil: 0.5
-    bias_floor: -0.5
-    bias_strength: 0.1
 
 neural_network:
   hidden_layer: 7
+  weight_ceil: 1
+  weight_floor: -1
+  bias_ceil: 0.5
+  bias_floor: -0.5
 
 fitness:
   snack_weight: 100
