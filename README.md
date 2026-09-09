@@ -5,7 +5,36 @@
 </p>
 
 
-## Install
+# Run demo model
 ```
 git clone https://github.com/falcon-oliver/ai_snake.git
+cd ai_snake
+python3 main.py -l ./models/example.pt
+```
+
+# Usage
+
+Default train and test model. <code>iterations=20 start_population=100</code>
+```
+python3 main.py
+```
+
+Save model
+```
+python3 main.py -s ./models/out.pt
+```
+
+Play the game
+```
+python3 main.py -t
+```
+
+Change iterations
+```
+python3 main.py -i 100
+```
+
+Change start population
+```
+python3 main.py -p 200
 ```
