@@ -5,12 +5,13 @@
 </p>
 
 
-# Run demo model
+# Install
 ```
 git clone https://github.com/falcon-oliver/ai_snake.git
 cd ai_snake
-python3 main.py -l ./models/example.pt
+pip install -r requirements.txt
 ```
+
 
 # Usage
 
@@ -22,6 +23,11 @@ python3 main.py
 Save model
 ```
 python3 main.py -s ./models/out.pt
+```
+
+Load model
+```
+python3 main.py -l ./models/example.pt
 ```
 
 Play the game
