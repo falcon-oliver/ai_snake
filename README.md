@@ -88,3 +88,22 @@ Tunable values found in <code>config/config.yaml</code>
 | timeout_bonus | The number of additional moves added to timeout_limit after collecting a snack | 10 |
 
 
+# Technical details
+
+## Fitness function
+
+```math
+
+\text{snacks\_ate}=\alpha,~
+\text{time\_survived}=\beta,~
+\text{shaping\_reward}=\gamma,~
+\text{inactivity}=\delta,~
+\text{penalty}=\epsilon,~
+\text{weights}=\omega_n
+```
+
+
+```math
+fitness=\frac{\sum_{j=0}^{n} \alpha * \omega_1 + \beta *\omega_2 + \gamma *\omega_3 - \delta * \omega_4 - \epsilon }{n}
+```
+
